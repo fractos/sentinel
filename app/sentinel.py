@@ -3,6 +3,7 @@ import logging
 import logzero
 import signal
 import os
+import os.path
 import time
 from pathlib import Path
 import settings
@@ -20,10 +21,10 @@ def main():
     if settings.USE_SEMAPHORE_FILE_STRATEGY:
         if settings.SEMAPHORE_FILE_ENSURE_REMOVED:
             logger.info("ensuring semaphore file at " + settings.SEMAPHORE_FILE + " is removed")
-            semaphore_file = Path(settings.SEMAPHORE_FILE)
-            if semaphore_file.exists():
+
+            if os.path.isfile(settings.SEMAPHORE_FILE):
                 logger.info("semaphore file exists, removing")
-                semaphore_file.unlink()
+                os.unlink(settings.SEMAPHORE_FILE)
 
     while not requested_to_quit:
         age = int(time.time() - last_hello_emitted)
@@ -35,14 +36,14 @@ def main():
 
     if requested_to_quit:
         if settings.USE_SEMAPHORE_FILE_STRATEGY:
-            logger.info("touching semaphore file at " + settings.SEMAPHORE_FILE})
-            Path(settings.SEMAPHORE_FILE).touch()
+            logger.info("touching semaphore file at " + settings.SEMAPHORE_FILE)
+            open(settings.SEMAPHORE_FILE, 'a').close()
 
     logger.info("done")
 
 
 def signal_handler(signum, frame):
-    logger.info("Caught signal " + str(signum)")
+    logger.info("Caught signal " + str(signum))
     global requested_to_quit
     requested_to_quit = True
 
