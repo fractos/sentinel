@@ -5,7 +5,6 @@ import signal
 import os
 import os.path
 import time
-from pathlib import Path
 import settings
 
 requested_to_quit = False
