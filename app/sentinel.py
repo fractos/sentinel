@@ -19,30 +19,30 @@ def main():
 
     if settings.USE_SEMAPHORE_FILE_STRATEGY:
         if settings.SEMAPHORE_FILE_ENSURE_REMOVED:
-            logger.info(f"ensuring semaphore file at '{settings.SEMAPHORE_FILE} is removed")
+            logger.info("ensuring semaphore file at " + settings.SEMAPHORE_FILE + " is removed")
             semaphore_file = Path(settings.SEMAPHORE_FILE)
             if semaphore_file.exists():
-                logger.info(f"semaphore file exists, removing")
+                logger.info("semaphore file exists, removing")
                 semaphore_file.unlink()
 
     while not requested_to_quit:
         age = int(time.time() - last_hello_emitted)
         if age > settings.SAY_HELLO_SECONDS:
-            logger.info(f"running...")
+            logger.info("running...")
             last_hello_emitted = time.time()
 
         time.sleep(settings.SLEEP_SECONDS)
 
     if requested_to_quit:
         if settings.USE_SEMAPHORE_FILE_STRATEGY:
-            logger.info(f"touching semaphore file at '{settings.SEMAPHORE_FILE}")
+            logger.info("touching semaphore file at " + settings.SEMAPHORE_FILE})
             Path(settings.SEMAPHORE_FILE).touch()
 
     logger.info("done")
 
 
 def signal_handler(signum, frame):
-    logger.info(f"Caught signal {signum}")
+    logger.info("Caught signal " + str(signum)")
     global requested_to_quit
     requested_to_quit = True
 
