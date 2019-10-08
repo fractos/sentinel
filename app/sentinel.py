@@ -17,13 +17,30 @@ def main():
 
     last_hello_emitted = time.time()
 
+    semaphore_file = settings.SEMAPHORE_FILE
+
+    if settings.USE_ECS_TASK_STRATEGY:
+        logger.info("using ECS Task strategy for semaphore token")
+
+        if len(settings.ECS_TASK_STRATEGY_ENDPOINT) is None:
+            logger.fatal("ECS_TASK_STRATEGY_ENDPOINT was empty")
+            return
+
+        r = requests.get(settings.ECS_TASK_STRATEGY_ENDPOINT)
+        metadata = r.json()
+        logger.debug("metadata was: " + json.dumps(metadata))
+        task_id = metadata["Labels"]["com.amazonaws.ecs.task-arn"].split("/")[1]
+        logger.debug("task_id: " + task_id)
+        semaphore_file = settings.ECS_TASK_STRATEGY_SEMAPHORE_FILE_TEMPLATE.replace("##task_id##", task_id)
+        logger.info("semaphore file set to " + semaphore_file")
+
     if settings.USE_SEMAPHORE_FILE_STRATEGY:
         if settings.SEMAPHORE_FILE_ENSURE_REMOVED:
-            logger.info("ensuring semaphore file at " + settings.SEMAPHORE_FILE + " is removed")
+            logger.info("ensuring semaphore file at " + semaphore_file + " is removed")
 
-            if os.path.isfile(settings.SEMAPHORE_FILE):
+            if os.path.isfile(semaphore_file):
                 logger.info("semaphore file exists, removing")
-                os.unlink(settings.SEMAPHORE_FILE)
+                os.unlink(semaphore_file)
 
     while not requested_to_quit:
         age = int(time.time() - last_hello_emitted)
@@ -35,8 +52,8 @@ def main():
 
     if requested_to_quit:
         if settings.USE_SEMAPHORE_FILE_STRATEGY:
-            logger.info("touching semaphore file at " + settings.SEMAPHORE_FILE)
-            open(settings.SEMAPHORE_FILE, 'a').close()
+            logger.info("touching semaphore file at " + semaphore_file)
+            open(semaphore_file, 'a').close()
 
     logger.info("done")
 
