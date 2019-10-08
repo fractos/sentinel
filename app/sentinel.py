@@ -5,6 +5,8 @@ import signal
 import os
 import os.path
 import time
+import requests
+import json
 import settings
 
 requested_to_quit = False
@@ -32,7 +34,7 @@ def main():
         task_id = metadata["Labels"]["com.amazonaws.ecs.task-arn"].split("/")[1]
         logger.debug("task_id: " + task_id)
         semaphore_file = settings.ECS_TASK_STRATEGY_SEMAPHORE_FILE_TEMPLATE.replace("##task_id##", task_id)
-        logger.info("semaphore file set to " + semaphore_file")
+        logger.info("semaphore file set to " + semaphore_file)
 
     if settings.USE_SEMAPHORE_FILE_STRATEGY:
         if settings.SEMAPHORE_FILE_ENSURE_REMOVED:
