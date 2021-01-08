@@ -31,7 +31,7 @@ def main():
         r = requests.get(settings.ECS_TASK_STRATEGY_ENDPOINT)
         metadata = r.json()
         logger.debug("metadata was: " + json.dumps(metadata))
-        task_id = metadata["Labels"]["com.amazonaws.ecs.task-arn"].split("/")[1]
+        task_id = metadata["Labels"]["com.amazonaws.ecs.task-arn"].split("/")[-1]
         logger.debug("task_id: " + task_id)
         semaphore_file = settings.ECS_TASK_STRATEGY_SEMAPHORE_FILE_TEMPLATE.replace("##task_id##", task_id)
         logger.info("semaphore file set to " + semaphore_file)
